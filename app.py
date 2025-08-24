@@ -7,28 +7,17 @@ from collections import Counter
 import gspread
 from google.oauth2.service_account import Credentials
 
-# === CONFIGURAÇÕES ===
 NOME_PLANILHA_ORIGEM = "Feedbackss"
-NOME_ABA_FEEDBACKS = "Respostas ao formulário 1"
+NOME_ABA_FEEDBACKS = "My new form"
 
 NOME_PLANILHA_DESTINO = "analise_feedbacks_resultado"
-NOME_ABA_ANALISE = "Resultados"
+NOME_ABA_ANALISE = "sheet 1"
 
-INTERVALO_VERIFICACAO = 30  # segundos
+INTERVALO_VERIFICACAO = 30  
 
-# Caminho automático do JSON (mesma pasta do app.py)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CAMINHO_CREDENCIAIS = r"C:\Users\ldowr\Desktop\automacao_planilhas\credenciais.json"
 
-
-
-print("🔍 Verificando caminho:", CAMINHO_CREDENCIAIS)
-print("📂 Existe?", os.path.exists(CAMINHO_CREDENCIAIS))
-print("📂 Arquivos na pasta:", os.listdir(os.path.dirname(CAMINHO_CREDENCIAIS)))
-
-
-
-  # ajuste conforme necessário
 
 class AnalisadorFeedbacks:
     def __init__(self):
@@ -38,7 +27,7 @@ class AnalisadorFeedbacks:
 
     def conectar(self):
         """Conecta ao Google Sheets"""
-        print(f"🔑 Usando credenciais em: {CAMINHO_CREDENCIAIS}")
+        print(f"Usando credenciais em: {CAMINHO_CREDENCIAIS}")
         if not os.path.exists(CAMINHO_CREDENCIAIS):
             raise FileNotFoundError(f"Arquivo de credenciais não encontrado: {CAMINHO_CREDENCIAIS}")
 
@@ -55,14 +44,14 @@ class AnalisadorFeedbacks:
             self.aba_feedbacks = planilha_origem.worksheet(NOME_ABA_FEEDBACKS)
         except:
             self.aba_feedbacks = planilha_origem.get_worksheet(0)
-            print(f"⚠️ Aba '{NOME_ABA_FEEDBACKS}' não encontrada, usando primeira: {self.aba_feedbacks.title}")
+            print(f"⚠Aba '{NOME_ABA_FEEDBACKS}' não encontrada, usando primeira: {self.aba_feedbacks.title}")
 
         # Conecta à planilha de destino
         planilha_destino = self.client.open(NOME_PLANILHA_DESTINO)
         try:
             self.aba_analise = planilha_destino.worksheet(NOME_ABA_ANALISE)
         except:
-            print(f"📊 Criando aba de análise '{NOME_ABA_ANALISE}'...")
+            print(f"Criando aba de análise '{NOME_ABA_ANALISE}'...")
             self.aba_analise = planilha_destino.add_worksheet(title=NOME_ABA_ANALISE, rows=1000, cols=12)
             cabecalhos = [
                 'Timestamp_Processamento', 'ID_Feedback', 'Nome_Cliente', 'Email_Cliente', 'Telefone_Cliente',
@@ -71,7 +60,7 @@ class AnalisadorFeedbacks:
             ]
             self.aba_analise.insert_row(cabecalhos, 1)
 
-        print(f"✅ Conectado às planilhas: '{NOME_PLANILHA_ORIGEM}' e '{NOME_PLANILHA_DESTINO}'")
+        print(f"Conectado às planilhas: '{NOME_PLANILHA_ORIGEM}' e '{NOME_PLANILHA_DESTINO}'")
         return True
 
     def analisar_sentimento(self, feedback, nota):
@@ -106,7 +95,7 @@ class AnalisadorFeedbacks:
         """Lê feedbacks e grava análise"""
         dados = self.aba_feedbacks.get_all_values()
         if len(dados) <= 1:
-            print("📝 Nenhum feedback encontrado")
+            print("Nenhum feedback encontrado")
             return 0
 
         cabecalhos = [h.lower() for h in dados[0]]
@@ -129,7 +118,7 @@ class AnalisadorFeedbacks:
                     sentimento, criterio, criterio, "Sucesso", timestamp
                 ])
             except Exception as e:
-                print(f"⚠️ Erro ao processar feedback {idx}: {e}")
+                print(f"⚠Erro ao processar feedback {idx}: {e}")
 
         if resultados:
             self.aba_analise.clear()
@@ -162,3 +151,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
